@@ -1,0 +1,79 @@
+<div class="row col s12 ml-4">
+  <form class="col s12" #userForm="ngForm" (ngSubmit)="onSubmit(userForm)">
+    <div class="center">
+      <i class="material-icons medium">person_add</i>
+    </div>
+    <div class="row s12">
+      <div class="input-field col s6">
+        <input required name="UserName" #nameOfUser="ngModel" [(ngModel)]="user.UserName"
+         type="text" >
+        <label>UserName</label>
+        <div class="text-danger right" *ngIf="nameOfUser.touched && nameOfUser.errors?.required">
+          Required Field !
+        </div>
+      </div>   
+      <div class="input-field col s6">
+        <input minlength="6" required name="Password" #passwd="ngModel" [(ngModel)]="user.Password"
+          type="password">
+        <label>Password</label>
+        <div class="text-danger right" *ngIf="passwd.touched && passwd.errors?.required">
+          Required Field !
+        </div>
+        <div class="text-danger right" *ngIf="passwd.touched && passwd.errors?.minlength">
+          Password should be atleast 6 characters long !
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-field col s6">
+        <input required name="FirstName" #firstname="ngModel" [(ngModel)]="user.FirstName"
+          type="text">
+        <label>First Name</label>
+        <div class="text-danger right" *ngIf="firstname.touched && firstname.errors?.required">
+          Required Field !
+        </div>
+      </div>
+      <div class="input-field col s6">
+        <input required name="LastName" #lastname="ngModel" [(ngModel)]="user.LastName"
+          type="text">
+        <label>Last Name</label>
+        <div class="text-danger right" *ngIf="lastname.touched && lastname.errors?.required">
+          Required Field !
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="input-field col s12">
+        <input #email="ngModel" pattern="^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$" required name="Email"
+          [(ngModel)]="user.Email" type="email">
+        <label>Email</label>
+        <div class="text-danger right" *ngIf="email.touched && email.errors?.required">
+          Required Field !
+        </div>
+        <div class="text-danger right" *ngIf="email.touched && email.errors?.pattern">
+          Invalid email !
+        </div>
+      </div>
+    </div>
+
+    <div class="row ml-1" *ngIf="roles">
+      <label class="mt-1">Roles:</label>
+      <div class="col s12" *ngFor="let item of roles;let i = index">
+        <p class="col s12">
+          <label>
+            <input (change)="changeSelected(i)" type="checkbox" [id]="'roles-' + i" value="{{item.Id}}" [checked]="item.selected" />
+            <span>{{item.Name}}</span>
+          </label>
+        </p>
+        <br/>
+      </div>
+     
+    </div>
+    <div class="row center">
+      <button [disabled]="userForm.invalid" class="btn btn-success center waves-effect waves-light" type="submit">Register
+        
+      </button>
+    </div>
+  </form>
+</div>

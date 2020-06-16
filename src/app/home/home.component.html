@@ -1,0 +1,772 @@
+<app-navbar></app-navbar>
+
+<div class="container">
+  <div class="container">
+
+    <div class="row" *ngIf="!isAddQuestion && !isExploreSurvey">
+      <div *ngIf="isAdmin" class="col s4">
+        <div class="card">
+          <div class="card-stacked">
+            <div class="card-content center">
+              <a (click)="toggleAddQuestion()" class="btn-floating btn-large waves-effect waves-light red"><i
+                  class="material-icons">add</i></a>
+            </div>
+            <div class="card-action center">
+              Add Questions
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col s4">
+        <div class="card ">
+          <div class="card-stacked">
+            <div class="card-content center">
+              <a (click)="loadSurvey()" class="btn-floating  btn-large waves-effect waves-light red"><i
+                  class="material-icons">assessment</i></a>
+            </div>
+            <div class="card-action center">
+              Explore Survey
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div *ngIf="isAddQuestion && !isExploreSurvey" class="col s10 offset-s1 section">
+       
+        <form #newQuestion="ngForm" (ngSubmit)="SaveQuestion(newQuestion)">
+          <h4>Add Question</h4>
+          <div class="divider"></div>
+
+          <div class="col s12">
+            <div class="input-field">
+              <textarea required ngModel name="question" class="materialize-textarea validate"></textarea>
+              <label>Type in your question here...</label>
+            </div>
+          </div>
+          <div class="col s12">
+            <div class="">
+              Choose your answer type:
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <div class="">
+              <p>
+                <label>
+                  <input required #textBox value="textbox" ngModel name="answer" type="radio" />
+                  <span>Text Box</span>
+                </label>
+              </p>
+              <p>
+                <label>
+                  <input required #number value="number" ngModel name="answer" type="radio" />
+                  <span>Number</span>
+                </label>
+              </p>
+              <p>
+                <label>
+                  <input #checkBox ngModel value="checkbox" name="answer" type="radio" />
+                  <span>Check Boxes</span>
+                </label>
+              </p>
+              <p>
+                <label>
+                  <input #radio ngModel value="radio" name="answer" type="radio" />
+                  <span>Radio Buttons</span>
+                </label>
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Resonse options:</h4>
+            <div class="divider"></div>
+          </div>
+          <div class="row"></div>
+          <div class="col s12">
+            <div *ngIf="textBox.checked">
+              <div class="input-field col s6">
+                <input  placeholder="Text box added for response" disabled type="text" class="validate">
+              </div>
+            </div>
+            <div *ngIf="number.checked">
+              <div class="input-field col s6">
+                <input  placeholder="Number textbox added for response" disabled type="number" class="validate">
+              </div>
+            </div>
+            <div *ngIf="checkBox.checked">
+              <div class="col s6">
+                <p *ngFor="let item of [].constructor(initialCheckBoxes), let x = index">
+                  <label>
+                    <input id="x" type="checkbox" disabled />
+                    <span for="x"><input placeholder="Response option text" class="validate" required
+                        [(ngModel)]="checkBoxes[x].Value" [name]="checkBoxes[x].Name" type="text"></span>
+                  </label>
+                </p>
+              </div>
+              <div class="col s6">
+                <div class="row">
+                  <a (click)="addCheckBoxOption()" class="btn-floating btn-small waves-effect waves-light red"><i
+                      class="material-icons">add</i></a>
+                  Option
+                </div>
+                <div class="row">
+                  <a (click)="removeCheckBoxOption()" class="btn-floating btn-small waves-effect waves-light red"><i
+                      class="material-icons">remove</i></a>
+                  Option
+                </div>
+              </div>
+            </div>
+            <div *ngIf="radio.checked">
+              <div class="col s6">
+                <p *ngFor="let item of [].constructor(intialRadioOptions), let x = index">
+                  <label>
+                    <input id="x" type="radio" disabled />
+                    <span for="x"><input placeholder="Response option text" class="validate" required
+                        [(ngModel)]="radioButtons[x].Value" [name]="radioButtons[x].Name" type="text"></span>
+                  </label>
+                </p>
+              </div>
+              <div class="col s6">
+                <div class="row">
+                  <a (click)="addRadioButtonOption()" class="btn-floating btn-small waves-effect waves-light red"><i
+                      class="material-icons">add</i></a>
+                  Option
+                </div>
+                <div class="row">
+                  <a (click)="removeRadioButtonOption()" class="btn-floating btn-small waves-effect waves-light red"><i
+                      class="material-icons">remove</i></a>
+                  Option
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row"></div>
+          <div class="row"></div>
+          <div style="margin-top: 15px;">
+            <h4>Submit Your Question</h4>
+            <div class="divider"></div>
+          </div>
+          <div class="row"></div>
+          <div class="row"></div>
+
+          <div class="col s12 center">
+            <input [disabled]="newQuestion.invalid" type="submit" value="Add Question To Survey"
+              class="waves-effect waves-light btn white-text">
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+    <div *ngIf="isExploreSurvey && !isAddQuestion" class="row">
+     
+      <div class="col s10 offset-s1">        
+        <h3 class="center-align valign" style="margin-bottom: 10px;">Welcome to TeamMate Survey !</h3>
+        <div class="divider"></div>
+      </div>
+
+      <div class="col s10 offset-s2 ">
+        <form *ngIf="questionData.length > 0" class="col s10 left-align" #form="ngForm" [formGroup]="surveyFormGroup"
+          (ngSubmit)="onSubmit(form.value)">
+          <div *ngFor="let form_elem of questionData let i = index">
+            <div [ngSwitch]="form_elem.QuestionAnswerJson.type">
+              <div *ngSwitchCase="'textbox'">
+                <h4 [hidden]="dictMap.get(form_elem.SurveyId)">Question.{{i+1}} -
+                  {{form_elem.QuestionAnswerJson.question}}</h4>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)" class="input-field col s12">
+                  <input [(ngModel)]="form_elem.QuestionAnswerJson.question" [ngModelOptions]="{standalone: true}"
+                    type="text" class="validate">
+                </div>
+                <div class="input-field col s12 offset-1">
+                  <input [hidden]="dictMap.get(form_elem.SurveyId)" placeholder="Enter your answer" id="'text' +i"
+                    formControlName="{{form_elem.SurveyId}}" type="text" class="validate">
+
+                  <div [hidden]="!dictMap.get(form_elem.SurveyId)">
+                    <div class="col s12">
+                      <div class="">
+                        Choose your answer type:
+                      </div>
+                      <div class="">
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('textbox', form_elem.SurveyId)" #textBox value="textbox"
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              [name]="form_elem.SurveyId" type="radio" />
+                            <span>Text Box</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('number', form_elem.SurveyId)" #number value="number"
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              [name]="form_elem.SurveyId" type="radio" />
+                            <span>Number</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('checkbox', form_elem.SurveyId)" #checkBox
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              value="checkbox" [name]="form_elem.SurveyId" type="radio" />
+                            <span>Check Boxes</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('radio', form_elem.SurveyId)" #radio
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              value="radio" [name]="form_elem.SurveyId" type="radio" />
+                            <span>Radio Buttons</span>
+                          </label>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <h5>Resonse options:</h5>
+                      <div class="divider"></div>
+                    </div>
+                    <div class="col s12">
+                      <div *ngIf="textBox.checked">
+                        <div class="input-field col s6">
+                          <input placeholder="Text box added for response" disabled type="text" class="validate">
+                        </div>
+                      </div>
+                      <div *ngIf="number.checked">
+                        <div class="input-field col s6">
+                          <input placeholder="Number textbox added for response" disabled type="number"
+                            class="validate">
+                        </div>
+                      </div>
+                      <div *ngIf="checkBox.checked">
+                        <div class="col s6">
+                          <p *ngFor="let item of [].constructor(editInitCheckBoxes), let x = index">
+                            <label>
+                              <input id="x" type="checkbox" disabled />
+                              <span for="x"><input placeholder="Response option text" class="validate" required
+                                  [ngModelOptions]="{standalone: true}" [(ngModel)]="editCheckBoxes[x].Value"
+                                  [name]="editCheckBoxes[x].Name" type="text"></span>
+                            </label>
+                          </p>
+                        </div>
+                        <div class="col s6">
+                          <div class="row">
+                            <a (click)="addInitCheckBoxOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">add</i></a>
+                            Option
+                          </div>
+                          <div class="row">
+                            <a (click)="removeInitCheckBoxOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">remove</i></a>
+                            Option
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="radio.checked">
+                        <div class="col s6">
+                          <p *ngFor="let item of [].constructor(editInitRadioOptions), let x = index">
+                            <label>
+                              <input id="x" type="radio" disabled />
+                              <span for="x"><input placeholder="Response option text" class="validate" required
+                                  [ngModelOptions]="{standalone: true}" [(ngModel)]="editRadioButtons[x].Value"
+                                  [name]="editRadioButtons[x].Name" type="text"></span>
+                            </label>
+                          </p>
+                        </div>
+                        <div class="col s6">
+                          <div class="row">
+                            <a (click)="addInitRadioButtonOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">add</i></a>
+                            Option
+                          </div>
+                          <div class="row">
+                            <a (click)="removeInitRadioButtonOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">remove</i></a>
+                            Option
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 right-align" *ngIf="isAdmin">
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small"
+                    (click)="enableEditMode(form_elem.SurveyId)">Edit</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small green"
+                    (click)="saveAndClosEditMode(i, form_elem.SurveyId)">Save</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="cancelEdit(form_elem.SurveyId)">Cancel</a>
+                  &nbsp;
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="deleteQuestion(form_elem.SurveyId, i)">Delete</a>
+                  <br />
+                </div>
+
+              </div>
+
+
+              <div *ngSwitchCase="'number'">
+                <h4 [hidden]="dictMap.get(form_elem.SurveyId)">Question.{{i+1}} -
+                  {{form_elem.QuestionAnswerJson.question}}</h4>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)" class="input-field col s12">
+                  <input [(ngModel)]="form_elem.QuestionAnswerJson.question" [ngModelOptions]="{standalone: true}"
+                    type="text" class="validate">
+                </div>
+                <div class="input-field col s12 offset-1">
+                  <input [hidden]="dictMap.get(form_elem.SurveyId)" placeholder="Enter your answer" id="'textnum' +i"
+                    formControlName="{{form_elem.SurveyId}}" type="number" class="validate">
+                  <div [hidden]="!dictMap.get(form_elem.SurveyId)">
+                    <div class="col s12">
+                      <div class="">
+                        Choose your answer type:
+                      </div>
+                      <div class="">
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('textbox', form_elem.SurveyId)" #textBox value="textbox"
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              [name]="form_elem.SurveyId" type="radio" />
+                            <span>Text Box</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('number', form_elem.SurveyId)" #number value="number"
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              [name]="form_elem.SurveyId" type="radio" />
+                            <span>Number</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('checkbox', form_elem.SurveyId)" #checkBox
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              value="checkbox" [name]="form_elem.SurveyId" type="radio" />
+                            <span>Check Boxes</span>
+                          </label>
+                        </p>
+                        <p>
+                          <label>
+                            <input (change)="setQuestionType('radio', form_elem.SurveyId)" #radio
+                              (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                              value="radio" [name]="form_elem.SurveyId" type="radio" />
+                            <span>Radio Buttons</span>
+                          </label>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <h5>Resonse options:</h5>
+                      <div class="divider"></div>
+                    </div>
+                    <div class="col s12">
+                      <div *ngIf="textBox.checked">
+                        <div class="input-field col s6">
+                          <input placeholder="Text box added for response" disabled type="text" class="validate">
+                        </div>
+                      </div>
+                      <div *ngIf="number.checked">
+                        <div class="input-field col s6">
+                          <input placeholder="Number textbox added for response" disabled type="number"
+                            class="validate">
+                        </div>
+                      </div>
+                      <div *ngIf="checkBox.checked">
+                        <div class="col s6">
+                          <p *ngFor="let item of [].constructor(editInitCheckBoxes), let x = index">
+                            <label>
+                              <input id="x" type="checkbox" disabled />
+                              <span for="x"><input placeholder="Response option text" class="validate" required
+                                  [ngModelOptions]="{standalone: true}" [(ngModel)]="editCheckBoxes[x].Value"
+                                  [name]="editCheckBoxes[x].Name" type="text"></span>
+                            </label>
+                          </p>
+                        </div>
+                        <div class="col s6">
+                          <div class="row">
+                            <a (click)="addInitCheckBoxOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">add</i></a>
+                            Option
+                          </div>
+                          <div class="row">
+                            <a (click)="removeInitCheckBoxOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">remove</i></a>
+                            Option
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="radio.checked">
+                        <div class="col s6">
+                          <p *ngFor="let item of [].constructor(editInitRadioOptions), let x = index">
+                            <label>
+                              <input id="x" type="radio" disabled />
+                              <span for="x"><input placeholder="Response option text" class="validate" required
+                                  [ngModelOptions]="{standalone: true}" [(ngModel)]="editRadioButtons[x].Value"
+                                  [name]="editRadioButtons[x].Name" type="text"></span>
+                            </label>
+                          </p>
+                        </div>
+                        <div class="col s6">
+                          <div class="row">
+                            <a (click)="addInitRadioButtonOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">add</i></a>
+                            Option
+                          </div>
+                          <div class="row">
+                            <a (click)="removeInitRadioButtonOption()"
+                              class="btn-floating btn-small waves-effect waves-light red"><i
+                                class="material-icons">remove</i></a>
+                            Option
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col s12 right-align" *ngIf="isAdmin">
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small"
+                    (click)="enableEditMode(form_elem.SurveyId)">Edit</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small green"
+                    (click)="saveAndClosEditMode(i, form_elem.SurveyId)">Save</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="cancelEdit(form_elem.SurveyId)">Cancel</a>
+                  &nbsp;
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="deleteQuestion(form_elem.SurveyId, i)">Delete</a>
+                  <br />
+                </div>
+
+              </div>
+              <div *ngSwitchCase="'checkbox'">
+                <h4 [hidden]="dictMap.get(form_elem.SurveyId)">Question.{{i+1}} -
+                  {{form_elem.QuestionAnswerJson.question}}</h4>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)" class="input-field col s12">
+                  <input [(ngModel)]="form_elem.QuestionAnswerJson.question" [ngModelOptions]="{standalone: true}"
+                    type="text" class="validate">
+                </div>
+                <div class="row"></div>
+                <div [hidden]="dictMap.get(form_elem.SurveyId)" class="col s12 offset-1">
+                  <p *ngFor="let opt of form_elem.QuestionAnswerJson.options">
+                    <label>
+                      <input value="{{opt}}" type="checkbox" formControlName="{{form_elem.SurveyId}}" />
+                      <span>{{opt}}</span>
+                    </label>
+                  </p>
+
+                </div>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)">
+                  <div class="col s12">
+                    <div class="">
+                      Choose your answer type:
+                    </div>
+                    <div class="">
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('textbox', form_elem.SurveyId)" #textBox value="textbox"
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            [name]="form_elem.SurveyId" type="radio" />
+                          <span>Text Box</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('number', form_elem.SurveyId)" #number value="number"
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            [name]="form_elem.SurveyId" type="radio" />
+                          <span>Number</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('checkbox', form_elem.SurveyId)" #checkBox
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            value="checkbox" [name]="form_elem.SurveyId" type="radio" />
+                          <span>Check Boxes</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('radio', form_elem.SurveyId)" #radio
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            value="radio" [name]="form_elem.SurveyId" type="radio" />
+                          <span>Radio Buttons</span>
+                        </label>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <h5>Resonse options:</h5>
+                    <div class="divider"></div>
+                  </div>
+                  <div class="col s12">
+                    <div *ngIf="textBox.checked">
+                      <div class="input-field col s6">
+                        <input placeholder="Text box added for response" disabled type="text" class="validate">
+                      </div>
+                    </div>
+                    <div *ngIf="number.checked">
+                      <div class="input-field col s6">
+                        <input placeholder="Number textbox added for response" disabled type="number" class="validate">
+                      </div>
+                    </div>
+                    <div *ngIf="checkBox.checked">
+                      <div class="col s6">
+                        <p *ngFor="let item of [].constructor(editInitCheckBoxes), let x = index">
+                          <label>
+                            <input id="x" type="checkbox" disabled />
+                            <span for="x"><input placeholder="Response option text" class="validate" required
+                                [ngModelOptions]="{standalone: true}" [(ngModel)]="editCheckBoxes[x].Value"
+                                [name]="editCheckBoxes[x].Name" type="text"></span>
+                          </label>
+                        </p>
+                      </div>
+                      <div class="col s6">
+                        <div class="row">
+                          <a (click)="addInitCheckBoxOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">add</i></a>
+                          Option
+                        </div>
+                        <div class="row">
+                          <a (click)="removeInitCheckBoxOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">remove</i></a>
+                          Option
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="radio.checked">
+                      <div class="col s6">
+                        <p *ngFor="let item of [].constructor(editInitRadioOptions), let x = index">
+                          <label>
+                            <input id="x" type="radio" disabled />
+                            <span for="x"><input placeholder="Response option text" class="validate" required
+                                [ngModelOptions]="{standalone: true}" [(ngModel)]="editRadioButtons[x].Value"
+                                [name]="editRadioButtons[x].Name" type="text"></span>
+                          </label>
+                        </p>
+                      </div>
+                      <div class="col s6">
+                        <div class="row">
+                          <a (click)="addInitRadioButtonOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">add</i></a>
+                          Option
+                        </div>
+                        <div class="row">
+                          <a (click)="removeInitRadioButtonOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">remove</i></a>
+                          Option
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 right-align" *ngIf="isAdmin">
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small"
+                    (click)="enableEditMode(form_elem.SurveyId)">Edit</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small green"
+                    (click)="saveAndClosEditMode(i, form_elem.SurveyId)">Save</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="cancelEdit(form_elem.SurveyId)">Cancel</a>
+                  &nbsp;
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="deleteQuestion(form_elem.SurveyId, i)">Delete</a>
+                  <br />
+                </div>
+              </div>
+              <div *ngSwitchCase="'radio'">
+                <h4 [hidden]="dictMap.get(form_elem.SurveyId)">Question.{{i+1}} -
+                  {{form_elem.QuestionAnswerJson.question}}</h4>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)" class="input-field col s12">
+                  <input [(ngModel)]="form_elem.QuestionAnswerJson.question" [ngModelOptions]="{standalone: true}"
+                    type="text" class="validate">
+                </div>
+                <div class="row"></div>
+                <div [hidden]="dictMap.get(form_elem.SurveyId)" class="col s12 offset-1">
+                  <p *ngFor="let opt of form_elem.QuestionAnswerJson.options">
+                    <label>
+                      <input value="{{opt}}" type="radio" formControlName="{{form_elem.SurveyId}}" />
+                      <span>{{opt}}</span>
+                    </label>
+                  </p>
+
+                </div>
+                <div [hidden]="!dictMap.get(form_elem.SurveyId)">
+                  <div class="col s12">
+                    <div class="">
+                      Choose your answer type:
+                    </div>
+                    <div class="">
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('textbox', form_elem.SurveyId)" #textBox value="textbox"
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            [name]="form_elem.SurveyId" type="radio" />
+                          <span>Text Box</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('number', form_elem.SurveyId)" #number value="number"
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            [name]="form_elem.SurveyId" type="radio" />
+                          <span>Number</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('checkbox', form_elem.SurveyId)" #checkBox
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            value="checkbox" [name]="form_elem.SurveyId" type="radio" />
+                          <span>Check Boxes</span>
+                        </label>
+                      </p>
+                      <p>
+                        <label>
+                          <input (change)="setQuestionType('radio', form_elem.SurveyId)" #radio
+                            (ngModel)="editQuestionType.get(form_elem.SurveyId)" [ngModelOptions]="{standalone: true}"
+                            value="radio" [name]="form_elem.SurveyId" type="radio" />
+                          <span>Radio Buttons</span>
+                        </label>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <h5>Resonse options:</h5>
+                    <div class="divider"></div>
+                  </div>
+                  <div class="col s12">
+                    <div *ngIf="textBox.checked">
+                      <div class="input-field col s6">
+                        <input placeholder="Text box added for response" disabled type="text" class="validate">
+                      </div>
+                    </div>
+                    <div *ngIf="number.checked">
+                      <div class="input-field col s6">
+                        <input placeholder="Number textbox added for response" disabled type="number" class="validate">
+                      </div>
+                    </div>
+                    <div *ngIf="checkBox.checked">
+                      <div class="col s6">
+                        <p *ngFor="let item of [].constructor(editInitCheckBoxes), let x = index">
+                          <label>
+                            <input id="x" type="checkbox" disabled />
+                            <span for="x"><input placeholder="Response option text" class="validate" required
+                                [ngModelOptions]="{standalone: true}" [(ngModel)]="editCheckBoxes[x].Value"
+                                [name]="editCheckBoxes[x].Name" type="text"></span>
+                          </label>
+                        </p>
+                      </div>
+                      <div class="col s6">
+                        <div class="row">
+                          <a (click)="addInitCheckBoxOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">add</i></a>
+                          Option
+                        </div>
+                        <div class="row">
+                          <a (click)="removeInitCheckBoxOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">remove</i></a>
+                          Option
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="radio.checked">
+                      <div class="col s6">
+                        <p *ngFor="let item of [].constructor(editInitRadioOptions), let x = index">
+                          <label>
+                            <input id="x" type="radio" disabled />
+                            <span for="x"><input placeholder="Response option text" class="validate" required
+                                [ngModelOptions]="{standalone: true}" [(ngModel)]="editRadioButtons[x].Value"
+                                [name]="editRadioButtons[x].Name" type="text"></span>
+                          </label>
+                        </p>
+                      </div>
+                      <div class="col s6">
+                        <div class="row">
+                          <a (click)="addInitRadioButtonOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">add</i></a>
+                          Option
+                        </div>
+                        <div class="row">
+                          <a (click)="removeInitRadioButtonOption()"
+                            class="btn-floating btn-small waves-effect waves-light red"><i
+                              class="material-icons">remove</i></a>
+                          Option
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col s12 right-align" *ngIf="isAdmin">
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small"
+                    (click)="enableEditMode(form_elem.SurveyId)">Edit</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small green"
+                    (click)="saveAndClosEditMode(i, form_elem.SurveyId)">Save</a>
+                  &nbsp;
+                  <a *ngIf="dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="cancelEdit(form_elem.SurveyId)">Cancel</a>
+                  &nbsp;
+                  <a *ngIf="!dictMap.get(form_elem.SurveyId)" class="waves-effect waves-light btn-small red"
+                    (click)="deleteQuestion(form_elem.SurveyId, i)">Delete</a>
+                  <br />
+                </div>
+              </div>
+            </div>
+            <br />
+            <div class="row"></div>
+          </div>
+
+          <div class="row"></div>
+          <div class="col s12 center">
+            <input class="waves-effect waves-light btn white-text" [disabled]="form.invalid" type="submit"
+              value="Submit Survey" />
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+    <div *ngIf="isExploreSurvey && questionData.length === 0" class="col s12">
+      <h5>Oops! Seems like no question have been added yet.</h5>
+    </div>
+
+  </div>
+
+  <!--To create space for main body-->
+  <div class="row"></div>
+  <div class="row"></div>
+  <div class="row"></div>
+  <div class="row"></div>
+  <div class="row"></div>
+  <div class="row"></div>
+
+
+  <!--Container div ends here-->
+</div>
+
+<div class="container">
+  <footer class="wk-standard-footer" style="margin-bottom: auto;">
+    <a href="javascript:void(0)" class="wk-brand"></a>
+    <span class="wk-copyright">&copy; 2020 TeamMate Survey POC.</span>
+  </footer>
+</div>
